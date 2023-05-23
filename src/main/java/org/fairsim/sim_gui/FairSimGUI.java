@@ -56,16 +56,16 @@ public class FairSimGUI {
 
     final JFrame baseframe;
     final private JPanel mainPanel;
-    
-    final OtfControl		otfc; 
+
+    final OtfControl		otfc;
     final SimParamGUI		simp;
     final ImageControl		imgc;
     final ParameterControl	parc;
     final ReconstructionControl recc;
 
     // create and pack the control interface
-    public FairSimGUI( 
-	SimParam sp, ImageSelector is, 
+    public FairSimGUI(
+	SimParam sp, ImageSelector is,
 	ImageDisplay.Factory imgFactory,
 	boolean initialized
 	) {
@@ -74,7 +74,7 @@ public class FairSimGUI {
 	mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
 	// set the logo
-	URL logo = getClass().getResource("/org/fairsim/resources/fairSimLogo.png");
+		URL logo = getClass().getClassLoader().getResource("fairSimLogo.png");
 	if ( logo != null) {
 	    baseframe.setIconImage(new ImageIcon( logo ).getImage());
 	}
@@ -84,17 +84,17 @@ public class FairSimGUI {
 	otfc = new OtfControl(baseframe, sp);
 	recc = new ReconstructionControl(baseframe, imgFactory, imgc, sp, simp );
 	parc = new ParameterControl(baseframe, imgFactory, imgc, sp, simp, recc, initialized );
-	
+
 
 	mainPanel.add( imgc.getPanel() );
 	mainPanel.add( otfc.getPanel() );
-	
+
 	JPanel p1 = new JPanel();
 	//p1.setLayout(new BoxLayout(p1, BoxLayout.LINE_AXIS));
 	p1.setLayout(new GridLayout(1,2));
 	p1.add( parc.getPanel() );
 	p1.add( recc.getPanel() );
-	
+
 	mainPanel.add( p1 );
 	mainPanel.add( simp.getPanel() );
 
@@ -113,7 +113,7 @@ public class FairSimGUI {
 	final JDialog simDialog = new JDialog(baseframe, true);
 	final Integer [] pha2Band = new Integer [] {3,4,5,6,7,8,9};
 	final Integer [] pha3Band = new Integer [] {5,6,7,8,9};
-	
+
 
 	JPanel p1 = new JPanel();
 	JPanel p2 = new JPanel();
@@ -121,39 +121,39 @@ public class FairSimGUI {
 	p3.setBorder(BorderFactory.createTitledBorder(
 	    "New SIM reconstruction") );
 
-	final Tiles.LComboBox<SimParam.IMGSEQ> imgSeq = 
+	final Tiles.LComboBox<SimParam.IMGSEQ> imgSeq =
 	    new Tiles.LComboBox<SimParam.IMGSEQ>("Type/Img.Seq.", SimParam.IMGSEQ.values());
 	imgSeq.box.setSelectedIndex(1);
 	imgSeq.box.setToolTipText("<html><b>Sequence of images</b><br />"+
 	    "(i.e. order of angles, phases, z-stack)<br />"+
 	    "if set to a microscope type, also sets number of<br />"+
 	    "angles, bands and phases accordingly<html>");
-	    
 
-	final Tiles.LComboBox<Integer> nrBands = 
+
+	final Tiles.LComboBox<Integer> nrBands =
 	    new Tiles.LComboBox<Integer>("beams", new Integer [] {2,3});
 	nrBands.box.setSelectedItem(3);
-	
-	final Tiles.LComboBox<Integer> nrDir = 
+
+	final Tiles.LComboBox<Integer> nrDir =
 	    new Tiles.LComboBox<Integer>("angles", new Integer [] {1,2,3,4,5,6,7});
 	nrDir.box.setSelectedItem(3);
-	
-	final Tiles.LComboBox<Integer> nrPha = 
+
+	final Tiles.LComboBox<Integer> nrPha =
 	    new Tiles.LComboBox<Integer>("phases", pha3Band );
 	nrPha.box.setSelectedItem(5);
 
 
 	p3.setLayout(new BoxLayout(p3, BoxLayout.PAGE_AXIS));
 
-	p3.add( imgSeq );	
+	p3.add( imgSeq );
 	p3.add( Box.createRigidArea(new Dimension(0,5)));
 	p1.setLayout(new BoxLayout(p1, BoxLayout.LINE_AXIS));
 	p1.add( Box.createHorizontalGlue());
-	p1.add( nrBands );	
+	p1.add( nrBands );
 	p1.add( Box.createRigidArea(new Dimension(3,5)));
-	p1.add( nrDir );	
+	p1.add( nrDir );
 	p1.add( Box.createRigidArea(new Dimension(3,5)));
-	p1.add( nrPha );	
+	p1.add( nrPha );
 	p1.add( Box.createHorizontalGlue());
 
 	JButton ok = new JButton("Set");
@@ -163,7 +163,7 @@ public class FairSimGUI {
 	p3.add(p1);
 	p3.add( Box.createRigidArea(new Dimension(0,5)));
 	p3.add(p2);
-	
+
 	// automatically change to defaults if a microscope is selected
 	imgSeq.addSelectListener( new Tiles.SelectListener<SimParam.IMGSEQ> () {
 	    public void selected( SimParam.IMGSEQ w, int ignore ) {
@@ -181,7 +181,7 @@ public class FairSimGUI {
 		}
 	    }
 	});
-   
+
 	// only allow NrOfPhases that makes sense
 	nrBands.addSelectListener( new Tiles.SelectListener<Integer> () {
 	    public void selected( Integer bands, int idxIgnore ) {
@@ -200,7 +200,7 @@ public class FairSimGUI {
 		simDialog.dispose();
 	    }
 	});
-	
+
 	cl.addActionListener( new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		simDialog.dispose();
@@ -214,7 +214,7 @@ public class FairSimGUI {
 
 	// create the response
 	if (isOk.get()) {
-	    SimParam sp = SimParam.create( 
+	    SimParam sp = SimParam.create(
 		nrBands.getSelectedItem(),
 		nrDir.getSelectedItem(),
 		nrPha.getSelectedItem(),
@@ -224,14 +224,14 @@ public class FairSimGUI {
 	    sp.setImgSeq( imgSeq.getSelectedItem());
 	    Tool.trace("Initialized fairSIM: new reconstruction");
 	    return sp;
-	
+
 	}
 
 	return null;
     }
 
     /** Initialize a new SimParam by displaying a FileChooser */
-    public static SimParam fromFileChooser( final Frame baseframe ) 
+    public static SimParam fromFileChooser( final Frame baseframe )
 	throws Conf.SomeIOException, Conf.EntryNotFoundException {
 
 	JFileChooser fc = new JFileChooser();
@@ -248,7 +248,7 @@ public class FairSimGUI {
 	    }
 	    return sp;
         }
-	
+
 	return null;
     }
 
@@ -256,22 +256,22 @@ public class FairSimGUI {
 
 
     /** for testing */
-    public static void main( String [] arg ) 
+    public static void main( String [] arg )
 	throws Exception {
 
 	int nImg = ( arg.length > 1 )?(Integer.parseInt( arg[1] )):(4);
-	
+
 	if (arg.length<1) {
 	    System.out.println("Use: n - new,  l - load , [nrImages] ");
 	    return;
-	}   
+	}
 
 	JFrame tmp = new JFrame();
 	tmp.pack();
 
 	SimParam sp = null;
 	boolean load=false;
-	
+
 	if ( arg[0].equals("n") ) {
 	    sp = newSpDialog( tmp );
 	}
@@ -283,8 +283,8 @@ public class FairSimGUI {
 
 	if (sp==null) return;
 
-	FairSimGUI a =  new FairSimGUI( 
-	    //SimParamGUI.dummySP(), 
+	FairSimGUI a =  new FairSimGUI(
+	    //SimParamGUI.dummySP(),
 	    sp,
 	    new ImageSelector.Dummy(nImg),
 	    DisplayWrapper.getTestingFactory(),

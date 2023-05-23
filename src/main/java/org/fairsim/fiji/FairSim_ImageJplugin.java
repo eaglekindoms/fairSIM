@@ -46,12 +46,12 @@ public class FairSim_ImageJplugin implements PlugIn {
 
     /** Called by Fiji to start the plugin */
     public void run(String inputarg) {
-	
+
 	SimParam sp=null;
 	String [] args = inputarg.split("-");
 
 	// amount and redirection of output
-	if ( args.length>1 && args[1].equals("log")) 
+	if ( args.length>1 && args[1].equals("log"))
 	    setLog(true);
 	else
 	    setLog(false);
@@ -85,13 +85,13 @@ public class FairSim_ImageJplugin implements PlugIn {
 	    return;
 
 	// create the main GUI
-	FairSimGUI a =  new FairSimGUI( 
+	FairSimGUI a =  new FairSimGUI(
 	    sp,
 	    new ImageOpener(),
 	    DisplayWrapper.getFactory(),
 	    fromFile
 	    );
-	    
+
     }
 
     /** set the logger (and amount) */
@@ -119,7 +119,7 @@ public class FairSim_ImageJplugin implements PlugIn {
 	    Tool.setLogger( new Tool.Logger () {
 		@Override
 		public void writeTrace(String w) {
-		
+
 		}
 		@Override
 		public void writeShortMessage(String w) {
@@ -139,7 +139,7 @@ public class FairSim_ImageJplugin implements PlugIn {
     /** open the 'about' window */
     void showAbout() {
 
-	InputStream is1 = getClass().getResourceAsStream("/org/fairsim/resources/about.html");
+	InputStream is1 = getClass().getClassLoader().getResourceAsStream("about.html");
 	InputStream is2 = getClass().getResourceAsStream("/org/fairsim/git-version.txt");
 
 	boolean mavenBuild = false;
@@ -147,15 +147,15 @@ public class FairSim_ImageJplugin implements PlugIn {
 	    is2 = getClass().getResourceAsStream("/org/fairsim/git-version-maven.txt");
 	    mavenBuild = true;
 	}
-	
+
 	if ( is1 == null ) {
 		JOptionPane.showMessageDialog( IJ.getInstance(),
 		 "About information not found", "about fairSIM",
 		 JOptionPane.WARNING_MESSAGE);
 		return;
-	}   
+	}
 
-	// get the about text	
+	// get the about text
 	BufferedReader br = new BufferedReader( new InputStreamReader( is1 ) );
 	StringBuffer text = new StringBuffer();
 	String line;
@@ -163,7 +163,7 @@ public class FairSim_ImageJplugin implements PlugIn {
 	    while ( (line = br.readLine()) != null )
 		text.append( line );
 	} catch ( java.io.IOException e ) {
-	    text = new StringBuffer("failed to read about information"); 
+	    text = new StringBuffer("failed to read about information");
 	}
 
 	// get the version information
@@ -176,7 +176,7 @@ public class FairSim_ImageJplugin implements PlugIn {
 		gitCommit = br2.readLine();
 		version   = br2.readLine();
 	    } catch ( java.io.IOException e ) {
-		gitCommit = "n/a";   
+		gitCommit = "n/a";
 		version = "unknown";
 	    }
 	}
@@ -184,29 +184,29 @@ public class FairSim_ImageJplugin implements PlugIn {
 
 	//String text = new Scanner( is, "UTF-8" ).useDelimiter("\\A").next();
 
-	String htmlContent = 
+	String htmlContent =
 	    "<html>"+text+"<h2>Version</h2>"+
 	    "version: "+version.substring(0, Math.min(12, version.length()))+
 	    "<br />git build id: "+
 	    gitCommit.substring(0, Math.min(10, gitCommit.length()))+" "+buildType+
 	    "<br /><br />Please include version and git id when reporting bugs.</html>";
-	
+
 	JEditorPane jep = new JEditorPane("text/html", htmlContent);
 	jep.setEditable(false);
 
 	jep.addHyperlinkListener( new HyperlinkListener() {
 	    public void hyperlinkUpdate( HyperlinkEvent e ) {
 
-		if ( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED 
+		if ( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
 		    && Desktop.isDesktopSupported() ) {
-		    
+
 		    try {
 			Desktop.getDesktop().browse( e.getURL().toURI());
 		    } catch ( Exception ex ) {
 			Tool.trace("Could not open URL: "+ex);
 		    }
 		}
-		
+
 	    }
 	});
 
@@ -214,7 +214,7 @@ public class FairSim_ImageJplugin implements PlugIn {
 	    jep,
 	    "About fairSIM",
 	    JOptionPane.INFORMATION_MESSAGE);
-    
+
     }
 
 
@@ -229,7 +229,7 @@ public class FairSim_ImageJplugin implements PlugIn {
 	    pl.showAbout();
 	    return;
 	}
-	
+
 	ImagePlus ip = IJ.openImage(arg[0]);
 	ip.show();
 
@@ -237,8 +237,8 @@ public class FairSim_ImageJplugin implements PlugIn {
 	SimParam sp = SimParam.create(3,3,5,512, 0.078, null);
 	sp.setImgSeq( SimParam.IMGSEQ.PZA );
 
-	FairSimGUI a =  new FairSimGUI( 
-	    sp, new ImageOpener(), 
+	FairSimGUI a =  new FairSimGUI(
+	    sp, new ImageOpener(),
 	    DisplayWrapper.getFactory(),
 	    false
 	    );

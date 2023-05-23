@@ -19,19 +19,19 @@ along with fairSIM.  If not, see <http://www.gnu.org/licenses/>
 package org.fairsim.linalg;
 
 
-/** Default implementation of {@link Vec.Cplx}, 
+/** Default implementation of {@link Vec.Cplx},
  *  backed by a float [].
  *  By implementing readyBuffer, syncBuffer, performance-critial
  *  functions can be moved to the accelarator step-by-step. */
 public abstract class AbstractVectorCplx implements Vec.Cplx {
-    
+
     final protected int elemCount;
     final protected float [] data;
 
     /** called before reading for the buffer. Typically,
      * copies data from the accelarator. */
     public abstract void readyBuffer() ;
-    
+
     /** called after writing to the buffer. Typically,
      * copies data back to the accelarator. */
     public abstract void syncBuffer() ;
@@ -50,7 +50,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	elemCount = n;
 	data = new float[ 2*n ];
     }
-    
+
     /** create a vector backed by the data in 'd' */
     protected AbstractVectorCplx(float [] d) {
 	if ( d.length % 2 == 1 )
@@ -60,7 +60,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
     }
 
     // --- creating new vectors ---
-    
+
     /** Return a copy of the real elements in this vector.
      * This uses the default VectorFactory set in Vec. */
     @Override
@@ -69,7 +69,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	ret.copy( this, false );
 	return ret;
     }
-    
+
     /** Return a copy of the imaginary elements in this vector.
      * This uses the default VectorFactory set in Vec. */
     @Override
@@ -86,7 +86,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	ret.copyMagnitude( this );
 	return ret;
     }
-    
+
     /** Return a copy, containing the phases of elements in this vector */
     @Override
     public Vec.Real duplicatePhase() {
@@ -94,7 +94,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	ret.copyPhase( this );
 	return ret;
     }
-    
+
     /** Return the n'th element, after syncing buffer.
      *  Implementing classes should probably override this
      *  with a more efficient implementation. */
@@ -102,7 +102,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
     public Cplx.Float get( int n ) {
         this.readyBuffer();
         return new org.fairsim.linalg.Cplx.Float( data[2*n], data[2*n+1] );
-    } 
+    }
 
     /** Set the n'th element, with synced buffer.
      *  Implementing classes should probably override this
@@ -113,7 +113,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	data[2*n+0] = v.re;
 	data[2*n+1] = v.im;
 	this.syncBuffer();
-    } 
+    }
 
     /** Set the n'th element, with synced buffer.
      *  Implementing classes should probably override this
@@ -124,8 +124,8 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	data[2*n+0] = (float)v.re;
 	data[2*n+1] = (float)v.im;
 	this.syncBuffer();
-    } 
-   
+    }
+
 
 
     /** Copy the content of 'in' into this vector */
@@ -137,7 +137,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	System.arraycopy( id, 0 , data, 0, elemCount*2);
 	this.syncBuffer();
     }
-    
+
     /** Copy the content of 'in' into this vector */
     public void copy(Vec.Real in) {
 	Vec.failSize( this, in);
@@ -149,9 +149,9 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	}
 	this.syncBuffer();
     }
-    
+
     // --- arith. functions ---
-    
+
     /** Set all elements to zero */
     public void zero() {
 	java.util.Arrays.fill( data, 0, elemCount*2, 0 );
@@ -169,13 +169,13 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	}
 	this.syncBuffer();
     }
-    
+
     /** Computes this += a * x */
     public void axpy( float a , Vec.Cplx x ) {
 	Vec.failSize(this, x);
 	this.readyBuffer();
 	float [] id = x.vectorData();
-	
+
 	for (int j=0;j<elemCount*2;j++)
 	    data[j] += a * id[j];
 	this.syncBuffer();
@@ -186,7 +186,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	Vec.failSize(this, x);
 	this.readyBuffer();
 	float [] id = x.vectorData();
-	
+
 	for (int i=0;i<elemCount;i++) {
 	    data[Rl(i)] += multReal( a.re, a.im, id[Rl(i)], id[Ig(i)] )  ;
 	    data[Ig(i)] += multImag( a.re, a.im, id[Rl(i)], id[Ig(i)] )  ;
@@ -223,7 +223,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	    data[j] *= a;
 	this.syncBuffer();
     }
-    
+
     /** Scale by 'in', ie this *= in */
     public void scal(org.fairsim.linalg.Cplx.Float in) {
 	float []  y = data;
@@ -241,7 +241,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
     public double norm2() {
 	this.readyBuffer();
 	double ret=0;
-	for (int i=0;i<elemCount*2;i++) 
+	for (int i=0;i<elemCount*2;i++)
 	    ret+= data[i] * data[i];
 	return ret;
     }
@@ -270,23 +270,23 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
     }
 
 
-    /** Compute element-wise multiplication this = this.*in. 
+    /** Compute element-wise multiplication this = this.*in.
      *  Same as times(in, false), which gets called by this function. */
     public final void times(Vec.Cplx in) {
 	times(in, false);
     }
-    
-    /** Compute element-wise multiplication this = this.*conj(in). 
+
+    /** Compute element-wise multiplication this = this.*conj(in).
      *  Same as times(in, true), which gets called by this function. */
     public final void timesConj(Vec.Cplx in) {
 	times(in, true);
     }
 
 
-    /** Compute element-wise multiplication this = this.*in, 
+    /** Compute element-wise multiplication this = this.*in,
      *  conjugated 'in' if 'conj' is true */
     public void times(Vec.Cplx in, final boolean conj) {
-	
+
 	Vec.failSize( this, in );
 	this.readyBuffer();
 	float [] x = in.vectorData(), y = data;
@@ -302,20 +302,53 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	}
 	this.syncBuffer();
     }
-    
-    /** Compute element-wise multiplication this = this.*in */ 
+
+    /** Compute element-wise multiplication this = this.*in */
     public void times(Vec.Real in) {
 	Vec.failSize( this, in );
 	this.readyBuffer();
 
 	float [] x = in.vectorData(), y = data;
 	for (int i=0;i<elemCount;i++) {
-	    y[Rl(i)] *= x[i]; 
-	    y[Ig(i)] *= x[i]; 
+	    y[Rl(i)] *= x[i];
+	    y[Ig(i)] *= x[i];
 	}
 	this.syncBuffer();
     }
+	/**
+	 * Compute element-wise multiplication this = this.*in,
+	 * conjugated 'in' if 'conj' is true
+	 */
+	public void elementwiseDivision(Vec.Real in) {
 
+		Vec.failSize(this, in);
+		this.readyBuffer();
+		float[] x = in.vectorData(), y = data;
+		for (int i = 0; i < elemCount; i++) {
+			float y1R = y[Rl(i)];
+			y[Rl(i)] = x[Rl(i)] / y1R;
+			y[Ig(i)] = 0;
+		}
+		this.syncBuffer();
+	}
+
+
+	/**
+	 * Compute element-wise multiplication this = this.*in,
+	 * conjugated 'in' if 'conj' is true
+	 */
+	public void elementwiseDivision(Vec.Cplx in) {
+
+		Vec.failSize(this, in);
+		this.readyBuffer();
+		float[] x = in.vectorData(), y = data;
+		for (int i = 0; i < elemCount; i++) {
+			float y1R = y[Rl(i)], y1I = y[Ig(i)];
+			y[Rl(i)] = divReal(x[Rl(i)], x[Ig(i)], y1R, y1I);
+			y[Ig(i)] = divImag(x[Rl(i)], x[Ig(i)], y1R, y1I);
+		}
+		this.syncBuffer();
+	}
 
     /** Return the sum of all vector elements */
     public org.fairsim.linalg.Cplx.Double sumElements( ) {
@@ -323,19 +356,19 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 	this.readyBuffer();
 
 	for (int i=0;i<elemCount; i++) {
-	    re += data[2*i+0];	
-	    im += data[2*i+1];	
+	    re += data[2*i+0];
+	    im += data[2*i+1];
 	}
 	return new org.fairsim.linalg.Cplx.Double(re,im);
     }
-    
+
     /** Compute this += x^2 */
     public void addSqr( Vec.Cplx xIn) {
 	Vec.failSize( xIn, this);
 	this.readyBuffer();
 
 	float [] x = xIn.vectorData(), y = data;
-	for (int i=0;i<elemCount;i++) 
+	for (int i=0;i<elemCount;i++)
 	    y[Rl(i)] += x[Rl(i)]*x[Rl(i)]+x[Ig(i)]*x[Ig(i)] ;
 
 	this.syncBuffer();
@@ -364,7 +397,7 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
 
 
     // ===================================================================
-    
+
 
     /** real part of complex mult */
     static float multReal( float Xr, float Xi, float Yr, float Yi ) {
@@ -374,7 +407,19 @@ public abstract class AbstractVectorCplx implements Vec.Cplx {
     static float multImag( float Xr, float Xi, float Yr, float Yi ) {
 	    return ((Xi * Yr ) + (Xr*Yi));
     }
+	/**
+	 * real part of complex division
+	 */
+	static float divReal(float Xr, float Xi, float Yr, float Yi) {
+		return ((Xr * Yr) + (Xi * Yi)) / ((Yr * Yr) + (Yi * Yi));
+	}
 
+	/**
+	 * imag part of complex division
+	 */
+	static float divImag(float Xr, float Xi, float Yr, float Yi) {
+		return ((Xi * Yr) - (Xr * Yi)) / ((Yr * Yr) + (Yi * Yi));
+	}
     /** real part at a given index */
     private static int Rl(int i) { return ((i*2)+0); }
     /** imag part at a given index */

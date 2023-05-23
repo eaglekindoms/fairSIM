@@ -20,7 +20,7 @@ package org.fairsim.linalg;
 
 import java.util.Arrays;    // for the median sort function
 
-/** Default implementation of {@link Vec.Real}, 
+/** Default implementation of {@link Vec.Real},
  *  backed by a float [].
  *  By implementing readyBuffer, syncBuffer, performance-critial
  *  functions can be moved to the accelarator step-by-step. */
@@ -28,10 +28,10 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 
     /** Elements in buffer */
     final protected int elemCount;
-    
+
     /** CPU / JAVA side data buffer */
     final protected float [] data;
-    
+
     /** Creates empty vector */
     protected AbstractVectorReal(int n) {
 	elemCount = n;
@@ -52,7 +52,7 @@ public abstract class AbstractVectorReal implements  Vec.Real {
     /** Called after writing to the 'data' buffer.
      *  Typical use is updating the accelarators copy */
     public abstract void syncBuffer();
-    
+
     /** Return a copy/duplicate of this vector */
     @Override
     public abstract Vec.Real duplicate();
@@ -63,25 +63,25 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 	return elemCount;
     }
 
-    
+
     /** Return the n'th element, after syncing buffer.
      *  Implementing classes should probably override this
      *  with a more efficient implementation. */
-    public float get( int n ) 
+    public float get( int n )
     {
 	this.readyBuffer();
 	return data[n];
-    } 
+    }
 
     /** Set the n'th element, with synced buffer.
      *  Implementing classes should probably override this
      *  with a more efficient implementation. */
-    public void set( int n, float x ) 
+    public void set( int n, float x )
     {
 	this.readyBuffer();
 	data[n] = x ;
 	this.syncBuffer();
-    } 
+    }
 
 
     // --- copy functions ---
@@ -94,18 +94,18 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 	System.arraycopy( id, 0 , data, 0, elemCount);
 	this.syncBuffer();
     }
-    
+
     /** Copy the real/imag values of 'in' into this vector */
     @Override
     public void copy(Vec.Cplx in, boolean imag) {
 	Vec.failSize( in, this);
 	float [] id = in.vectorData();
-	
+
 	for (int i=0;i<elemCount;i++)
 	    data[i] = id[2*i + ((imag)?(1):(0)) ];
 	this.syncBuffer();
     }
-    
+
     /** Copy the real values of 'in' into this vector */
     @Override
     public final void copy(Vec.Cplx in) {
@@ -118,24 +118,24 @@ public abstract class AbstractVectorReal implements  Vec.Real {
     public void copyMagnitude(Vec.Cplx in) {
 	Vec.failSize( in, this);
 	float [] id = in.vectorData();
-	
+
 	for (int i=0;i<elemCount;i++)
 	    data[i] = (float)MTool.fhypot(id[2*i], id[2*i+1]);
 	this.syncBuffer();
     }
-    
+
     /** Copy the phases of elements in 'in' into this vector */
     @Override
     public void copyPhase(Vec.Cplx in) {
 	Vec.failSize( in, this);
 	float [] id = in.vectorData();
-	
+
 	for (int i=0;i<elemCount;i++)
 	    data[i] = (float)Math.atan2(id[2*i+1], id[2*i]);
 	this.syncBuffer();
     }
 
-    
+
     /** Set all elements to zero */
     @Override
     public void zero() {
@@ -148,7 +148,7 @@ public abstract class AbstractVectorReal implements  Vec.Real {
     public void add( Vec.Real ... in ) {
 	Vec.failSize(this, in);
 	this.readyBuffer();
-	
+
 	for (int i=0;i<in.length;i++) {
 	    float [] id = in[i].vectorData();
 	    for (int j=0;j<elemCount;j++)
@@ -156,14 +156,14 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 	}
 	this.syncBuffer();
     }
-    
+
     /** Computes this += a * x */
     @Override
     public void axpy( float a , Vec.Real x ) {
 	Vec.failSize(this, x);
 	this.readyBuffer();
 	float [] id = x.vectorData();
-	
+
 	for (int j=0;j<elemCount;j++)
 	    data[j] += a * id[j];
 	this.syncBuffer();
@@ -177,7 +177,7 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 	    data[j] += a;
 	this.syncBuffer();
     }
-    
+
     /** Multiply by scalar, ie this *= a */
     @Override
     public void scal( float a ) {
@@ -194,7 +194,7 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 	this.readyBuffer();
 	float [] id = x.vectorData();
 	double ret=0;
-	for (int i=0;i<elemCount;i++) 
+	for (int i=0;i<elemCount;i++)
 	    ret+= id[i] * data[i];
 	return ret;
     }
@@ -204,33 +204,43 @@ public abstract class AbstractVectorReal implements  Vec.Real {
     public double norm2() {
 	double ret=0;
 	this.readyBuffer();
-	for (int i=0;i<elemCount;i++) 
+	for (int i=0;i<elemCount;i++)
 	    ret+= data[i] * data[i];
 	return ret;
     }
-    
+
     /** Compute the elemnt-wise multiplication this = this.*x */
     @Override
     public void times(Vec.Real x) {
 	Vec.failSize(this, x);
 	this.readyBuffer();
 	float [] id = x.vectorData();
-	for (int i=0;i<elemCount;i++) 
+	for (int i=0;i<elemCount;i++)
 	    data[i] = data[i] * id[i];
 	this.syncBuffer();
     }
-
+	/**
+	 * Compute the element-wise division this = this./x
+	 */
+	public void elementwiseDivision(Vec.Real x) {
+		Vec.failSize(this, x);
+		this.readyBuffer();
+		float[] id = x.vectorData();
+		for (int i = 0; i < elemCount; i++)
+			data[i] = data[i] / id[i];
+		this.syncBuffer();
+	}
     /** Return the sum of all vector elements */
     @Override
     public double sumElements() {
 	double ret=0;
 	this.readyBuffer();
 	for (int i=0;i<elemCount; i++) {
-	    ret += data[i];	
+	    ret += data[i];
 	}
 	return ret;
     }
-    
+
     /** Normalize the vector to 0..1 */
     @Override
     public void normalize(){
@@ -246,7 +256,7 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 	    data[i]=(data[i]-min)/(max-min);
 	this.syncBuffer();
     }
-    
+
     /** Normalize the vector to vmin..vmax */
     @Override
     public void normalize(float vmin, float vmax){
@@ -277,12 +287,12 @@ public abstract class AbstractVectorReal implements  Vec.Real {
     @Override
     public void addSqr( Vec.Real xIn ) {
 	Vec.failSize(this, xIn);
-	
+
 	this.readyBuffer();
 	float [] x = xIn.vectorData(), y = data;
-	for (int i=0;i<elemCount;i++) 
-	    y[i] += x[i]*x[i] ; 
-	
+	for (int i=0;i<elemCount;i++)
+	    y[i] += x[i]*x[i] ;
+
 	this.syncBuffer();
     }
 
@@ -325,8 +335,8 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 	}
 	return ret;
     }
-    
-    
+
+
     /** Get the maximum value in the vector */
     public float max() {
 	float ret = Float.MIN_VALUE;
@@ -338,7 +348,7 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 	}
 	return ret;
     }
-    
+
 
     /** Access to the internal vector array (mind the
      *  'syncBuffer' calls). Issues a {@link #readyBuffer} call
@@ -377,7 +387,7 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 
 
 	for ( int j=0;j<data.length; j++ ) {
-	
+
 	    final float v = data[j];
 
 	    int pos = -1;
@@ -403,5 +413,5 @@ public abstract class AbstractVectorReal implements  Vec.Real {
 }
 
 
-    
+
 

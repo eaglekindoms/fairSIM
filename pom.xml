@@ -1,198 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.scijava</groupId>
+        <artifactId>pom-scijava</artifactId>
+        <version>33.2.0</version>
+        <relativePath/>
+    </parent>
 
-  <properties>
-    <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
-  </properties>
+    <groupId>org.mysim</groupId>
+    <artifactId>mysim</artifactId>
+    <version>1.4.1f</version>
 
-  <groupId>org.fairsim</groupId>
-  <artifactId>fairSIM</artifactId>
-  <version>1.4.1</version>
-  <packaging>jar</packaging>
+    <name>MY-SIM</name>
+    <description>MY-SIM</description>
+    <url>https://github.com/eaglekindoms/mysim</url>
+    <inceptionYear>2022</inceptionYear>
+    <organization>
+        <name>mysim</name>
+        <url>none</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-  <name>fairSIM</name>
-  <description>Free Analysis and Interactive Reconstruction for Structured Illumination Microscopy</description>
-  <url>http://www.fairsim.org</url>
-  <inceptionYear>2013</inceptionYear>
+    <developers>
+        <developer>
+            <id>eaglekindoms</id>
+            <name>eagle</name>
+            <url>https://github.com/eaglekindoms</url>
+            <roles>
+                <role>developer</role>
+                <role>maintainer</role>
+            </roles>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>None</name>
+        </contributor>
+    </contributors>
 
-  <licenses>
-    <license>
-      <name>GNU General Public License</name>
-      <url>https://gnu.org/licenses/gpl.html</url>
-      <distribution>repo</distribution>
-      <comments>Version 2 of the License or (at your option) any later version.</comments>
-    </license>
-  </licenses>
+    <mailingLists>
+        <mailingList>
+            <name>Image.sc Forum</name>
+            <archive>https://forum.image.sc/</archive>
+        </mailingList>
+    </mailingLists>
 
-  <developers>
-    <developer>
-      <name>Marcel Müller</name>
-      <email>muellerphysics@gmail.com</email>
-      <roles>
-        <role>developer</role>
-      </roles>
-    </developer>
-  </developers>
+    <scm>
+        <connection>scm:git:git://github.com/eaglekindoms/mysim</connection>
+        <developerConnection>scm:git:git@github.com:eaglekindoms/mysim</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/eaglekindoms/mysim</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/eaglekindoms/mysim/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>None</system>
+    </ciManagement>
 
-  <scm>
-    <connection>scm:git:git://github.com/fairSIM/fairSIM</connection>
-    <developerConnection>scm:git:git@github.com:fairSIM/fairSIM</developerConnection>
-    <tag>HEAD</tag>
-    <url>http://github.com/fairSIM/fairSIM</url>
-  </scm>
-  <issueManagement>
-    <system>GitHub Issues</system>
-    <url>http://github.com/fairSIM/fairSIM/issues</url>
-  </issueManagement>
+    <properties>
+        <main-class>SparsePlugin</main-class>
+        <package-name>org.mysim</package-name>
+        <license.licenseName>cc0</license.licenseName>
+        <license.copyrightOwners>N/A</license.copyrightOwners>
+        <allowedDuplicateClasses>${scijava.allowedDuplicateClasses},org.json.*</allowedDuplicateClasses>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>net.imagej</groupId>
-      <artifactId>ij</artifactId>
-      <version>1.48v</version>
-    </dependency>
+    <dependencies>
 
-    <dependency>
-	<groupId>com.github.wendykierp</groupId>
-	<artifactId>JTransforms</artifactId>
-	<version>3.1</version>
-    </dependency>
+        <!-- ImageJ dependencies -->
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>imagej</artifactId>
+        </dependency>
+        <!-- NB: For ImageJ 1.x support. -->
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>imagej-legacy</artifactId>
+        </dependency>
 
-    <!-- Test dependencies -->
-<!-- not yet 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>RELEASE</version>
-      <scope>test</scope>
-    </dependency>
--->
+        <dependency>
+            <groupId>com.github.wendykierp</groupId>
+            <artifactId>JTransforms</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>sc.fiji</groupId>
+            <artifactId>bUnwarpJ_</artifactId>
+            <version>2.6.13</version>
+            <scope>provided</scope>
+        </dependency>
 
-  </dependencies>
+        <dependency>
+            <groupId>org.micromanager</groupId>
+            <artifactId>MMCoreJ</artifactId>
+            <version>1.4.22</version>
+        </dependency>
+        <dependency>
+            <groupId>org.micromanager</groupId>
+            <artifactId>MMJ_</artifactId>
+            <version>1.4.22</version>
+        </dependency>
+        <dependency>
+            <groupId>com.neuronrobotics</groupId>
+            <artifactId>nrjavaserial</artifactId>
+            <version>5.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacpp</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacpp</artifactId>
+            <version>1.5.4</version>
+            <classifier>windows-x86_64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <!--            <artifactId>cuda-platform</artifactId>-->
+            <artifactId>cuda</artifactId>
+            <version>11.0-8.0-1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <!--            <artifactId>cuda-platform</artifactId>-->
+            <artifactId>cuda</artifactId>
+            <version>11.0-8.0-1.5.4</version>
+            <classifier>windows-x86_64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+            <!--            <scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
 
-  <repositories>
-    <repository>
-      <id>imagej.public</id>
-      <url>http://maven.imagej.net/content/groups/public</url>
-    </repository>
-  </repositories>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Additional dependencies to use bundled CUDA, cuDNN, and NCCL -->
+        <!--  内嵌CUDA动态库 -->
+        <!--        <dependency>-->
+        <!--            <groupId>org.bytedeco</groupId>-->
+        <!--            &lt;!&ndash;            <artifactId>cuda-platform-redist</artifactId>&ndash;&gt;-->
+        <!--            <artifactId>cuda</artifactId>-->
+        <!--            <version>11.0-8.0-1.5.4</version>-->
+        <!--            <classifier>windows-x86_64-redist</classifier>-->
+        <!--        </dependency>-->
+
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>imagej.public</id>
+            <!--            <url>http://maven.imagej.net/content/groups/public</url>-->
+            <url>https://maven.imagej.net/content/repositories/releases/</url>
+            <!--            <url>https://mvnrepository.com/</url>-->
+        </repository>
+        <repository>
+            <id>scijava</id>
+            <url>https://maven.scijava.org/content/repositories/public/</url>
+        </repository>
+        <!--        <repository>-->
+        <!--            <id>mvnp</id>-->
+        <!--            <url>https://mvnrepository.com/</url>-->
+        <!--        </repository>-->
+    </repositories>
 
 
-  <build>
-
-    <!-- ImageJ plugins need an underscore on the filename of the jar. -->
-    <finalName>${project.artifactId}_plugin_mvn-${buildNumber}</finalName>
-
-    <sourceDirectory>./</sourceDirectory>
-
-    <resources>
-	<resource>
-	    <directory>./</directory>
-	    <filtering>true</filtering>
-	    <includes>
-		<include>org/fairsim/git-version-maven.txt</include>
-	    </includes>
-	</resource>
-	<resource>
-	    <directory>./</directory>
-	    <filtering>false</filtering>
-	    <includes>
-		<include>org/fairsim/resources/*</include>
-		<include>plugins.config</include>
-	    </includes>
-	</resource>
-    </resources>
-
-    <plugins>
-      <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <!--
-          Since Maven 3, we really need to specify a version number for
-          plugins, but RELEASE and LATEST are only valid for dependencies.
-        -->
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-	  <!-- this keeps the forked/internal version of JTransform from being build
-	       with maven dependencies, we can just rely on the original being there instead -->
-	  <excludes>
-	    <exclude>org/fairsim/linalg/JTransformsForkConnector.java</exclude>
-	  </excludes>
-	</configuration>
-      </plugin>
-
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>create</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-        	<doCheck>false</doCheck>
-		<doUpdate>false</doUpdate>
-		<shortRevisionLength>10</shortRevisionLength>
-	</configuration>
-      </plugin>
-
-     <!-- Javadoc and Sources attachments are OSSRH requirements -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.2.1</version>
-	<configuration>
-	    <excludeResources>true</excludeResources>
-	    <includes>
-		<include>org/fairsim/**/*.java</include>
-		<include>org/fairsim/resources/*</include>
-	    </includes>
-	    <excludes>
-		<exclude>target</exclude>
-		<exclude>org/fairsim/linalg/JTransformsForkConnector.java</exclude>
-	    </excludes>
-	</configuration>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9.1</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-		<quiet>true</quiet>
-		<excludes>
-		    <exclude>org/fairsim/linalg/JTransformsForkConnector.java</exclude>
-		</excludes>
-	    
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-     </plugins>
-  </build>
+    <build>
+        <plugins>
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-dependency-plugin</artifactId>-->
+            <!--                <version>2.10</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <id>copy</id>-->
+            <!--                        <phase>package</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>copy-dependencies</goal>-->
+            <!--                        </goals>-->
+            <!--                        <configuration>-->
+            <!--                            <outputDirectory>${project.build.directory}/jars</outputDirectory>-->
+            <!--                            <excludeArtifactIds>ij,bUnwarpJ_</excludeArtifactIds>-->
+            <!--                        </configuration>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-jar-plugin</artifactId>-->
+            <!--                <version>2.6</version>-->
+            <!--                <configuration>-->
+            <!--                    <archive>-->
+            <!--                        <manifest>-->
+            <!--                            <addClasspath>true</addClasspath>-->
+            <!--                            <classpathPrefix>jars/</classpathPrefix>-->
+            <!--                            <mainClass>org.fairsim.fiji.TestImageDisplay</mainClass>-->
+            <!--                        </manifest>-->
+            <!--                    </archive>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>*</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>accel</directory>
+                <includes>
+                    <include>libcudaimpl.*</include>
+                </includes>
+                <targetPath>accel</targetPath>
+                <filtering>false</filtering>
+            </resource>
+            <!--            <resource>-->
+            <!--                <directory>${project.build.directory}/lib</directory>-->
+            <!--                <targetPath>lib/</targetPath>-->
+            <!--                <excludes>-->
+            <!--                    <exclude>ij-1.48v.jar</exclude>-->
+            <!--                    <exclude>bUnwarpJ_-2.6.13.jar</exclude>-->
+            <!--                </excludes>-->
+            <!--            </resource>-->
+        </resources>
+    </build>
 </project>
