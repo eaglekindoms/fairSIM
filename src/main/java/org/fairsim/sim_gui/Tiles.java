@@ -18,383 +18,430 @@ along with fairSIM.  If not, see <http://www.gnu.org/licenses/>
 
 package org.fairsim.sim_gui;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.JComboBox;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
-import javax.swing.JComponent;
-
-import javax.swing.BoxLayout;
-import javax.swing.Box;
-import java.awt.Component;
-import java.awt.Color;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
-import java.awt.Dimension;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 
-/** Various GUI components */
+/**
+ * Various GUI components
+ */
 public class Tiles {
 
 
-    /** Labeled JSpinner to select numbers */
+    /**
+     * Labeled JSpinner to select numbers
+     */
     public static class LNSpinner extends JPanel {
 
-	private List<NumberListener> listener = new ArrayList<NumberListener>();
-    
-	/** Access to the spinner */
-	final public JSpinner spr; 
-	
-	/** Create a spinner
-	 *  @param label Label text in front of spinner 
-	 *  @param start Initial value
-	 *  @param min	 Minmal value
-	 *  @param max	 Maximal value
-	 *  @param inc   Increment */
-	public LNSpinner( String label, double start, double min, double max, double inc ) { 
-	    super();
-	    super.setLayout( new BoxLayout(this, BoxLayout.LINE_AXIS));
-	    
-	    final JLabel jl = new JLabel(label);
-	    final LNSpinner ref = this;
+        private final List<NumberListener> listener = new ArrayList<NumberListener>();
 
-	    spr = new JSpinner( new SpinnerNumberModel(start,min,max,inc));
-	    spr.setMaximumSize( spr.getPreferredSize() );;
-	    //spr.setEditor( new JSpinner.NumberEditor( spr, "##0.00"));
+        /**
+         * Access to the spinner
+         */
+        final public JSpinner spr;
 
-	    spr.addChangeListener( new ChangeListener() {
-	        public void stateChanged( ChangeEvent e ) {
-		   for ( NumberListener i : listener ) {
-			i.number( ref.getVal(), ref );
-		   }
-		}
-	    }); 
-	    
-	    super.add( Box.createRigidArea(new Dimension(5,0)));
-	    super.add( Box.createHorizontalGlue());
-	    super.add( jl );
-	    super.add( Box.createRigidArea(new Dimension(5,0)));
-	    super.add( spr );
-	    super.add( Box.createHorizontalGlue());
-	    super.add( Box.createRigidArea(new Dimension(5,0)));
-	}
+        /**
+         * Create a spinner
+         *
+         * @param label Label text in front of spinner
+         * @param start Initial value
+         * @param min   Minmal value
+         * @param max   Maximal value
+         * @param inc   Increment
+         */
+        public LNSpinner(String label, double start, double min, double max, double inc) {
+            super();
+            super.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-	@Override
-	public void setEnabled(boolean onoff) {
-	    spr.setEnabled(onoff);
-	}
+            final JLabel jl = new JLabel(label);
+            final LNSpinner ref = this;
+
+            spr = new JSpinner(new SpinnerNumberModel(start, min, max, inc));
+            spr.setMaximumSize(spr.getPreferredSize());
+			//spr.setEditor( new JSpinner.NumberEditor( spr, "##0.00"));
+
+            spr.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                    for (NumberListener i : listener) {
+                        i.number(ref.getVal(), ref);
+                    }
+                }
+            });
+
+            super.add(Box.createRigidArea(new Dimension(5, 0)));
+            super.add(Box.createHorizontalGlue());
+            super.add(jl);
+            super.add(Box.createRigidArea(new Dimension(5, 0)));
+            super.add(spr);
+            super.add(Box.createHorizontalGlue());
+            super.add(Box.createRigidArea(new Dimension(5, 0)));
+        }
+
+        @Override
+        public void setEnabled(boolean onoff) {
+            spr.setEnabled(onoff);
+        }
 
 
-	/** Get the spinners current value */
-	public double getVal() {
-	    return ((Number)spr.getValue()).doubleValue();
-	}
-    
-	/** Add a NumberListener */
-	public void addNumberListener( NumberListener l ) {
-	    listener.add( l );
-	}
-	
-	/** Remove a NumberListener */
-	public void removeNumberListener( NumberListener l ) {
-	    listener.remove( l );
-	}
+        /**
+         * Get the spinners current value
+         */
+        public double getVal() {
+            return ((Number) spr.getValue()).doubleValue();
+        }
 
+        /**
+         * Add a NumberListener
+         */
+        public void addNumberListener(NumberListener l) {
+            listener.add(l);
+        }
+
+        /**
+         * Remove a NumberListener
+         */
+        public void removeNumberListener(NumberListener l) {
+            listener.remove(l);
+        }
 
 
     }
 
-    /** Notification that an LNSpinner changed to a new number */
+    /**
+     * Notification that an LNSpinner changed to a new number
+     */
     public interface NumberListener {
-	/** Gets called with the new number */
-	public void number(double n, LNSpinner e);
+        /**
+         * Gets called with the new number
+         */
+		void number(double n, LNSpinner e);
 
     }
 
 
-   
-
-    /** Labeled drop-down selection box */
+    /**
+     * Labeled drop-down selection box
+     */
     public static class LComboBox<T> extends JPanel {
-	
-	boolean suppressEvents=false;
 
-	final JLabel jl;
+        boolean suppressEvents = false;
 
-	List<SelectListener<T>> listener 
-	    = new ArrayList<SelectListener<T>>();
+        final JLabel jl;
 
-	final Color defaultBackground = this.getBackground();
+        List<SelectListener<T>> listener
+                = new ArrayList<SelectListener<T>>();
 
-	/** Access to the ComboBox. */
-	final public TComboBox<T> box;
-	
-	/** 
-	 * @param label Label in front of box
-	 * @param opts  Selectable elements */
-	public LComboBox(String label, T ... opts ) {
-	    this( label, (java.awt.Component)null, false, opts );
-	}
+        final Color defaultBackground = this.getBackground();
 
-	/** 
-	 * @param label Label in front of box
-	 * @param addComp Additional component, added directly after the box
-	 * @param opts  Selectable elements */
-	public LComboBox(String label, java.awt.Component addComp, T ... opts ) {
-	    this( label, addComp, false, opts );
-	}
-	
-	/** 
-	 * @param label Label in front of box
-	 * @param addComp Additional component, added directly after the box
-	 * @param showToolTip if true, display the full text for each entry as tooltip
-	 * @param opts  Selectable elements */
-	public LComboBox(String label, java.awt.Component addComp, 
-	    boolean showToolTip, T ... opts ) {
-	    
-	    super();
-	    super.setLayout( new BoxLayout(this, BoxLayout.LINE_AXIS));
-	    jl = new JLabel(label);
-	    
-	    if ((opts!=null)&&(opts.length>0))
-		box = new TComboBox<T>(opts);
-	    else
-		box = new TComboBox<T>();
-	  
-	    //box.setMaximumSize( box.getPreferredSize() );;
+        /**
+         * Access to the ComboBox.
+         */
+        final public TComboBox<T> box;
 
-	    box.addActionListener( new ActionListener() {
-	        public void actionPerformed( ActionEvent e ) {
-		    if (!suppressEvents ) {
-			for ( SelectListener<T> i : listener )
-			    i.selected(  getSelectedItem(), box.getSelectedIndex() );
-		    }
-		}
-	    });
-	   
+        /**
+         * @param label Label in front of box
+         * @param opts  Selectable elements
+         */
+        public LComboBox(String label, T... opts) {
+            this(label, null, false, opts);
+        }
 
-	    // display tooltip with full file name
-	    if (showToolTip) {
-		box.setRenderer( new DefaultListCellRenderer() {
-		    @Override
-		    public Component getListCellRendererComponent(JList list, Object value,
-			int index, boolean isSelected, boolean cellHasFocus) {
-			
-			JComponent comp = (JComponent) super.getListCellRendererComponent(list,
-			    value, index, isSelected, cellHasFocus);
+        /**
+         * @param label   Label in front of box
+         * @param addComp Additional component, added directly after the box
+         * @param opts    Selectable elements
+         */
+        public LComboBox(String label, java.awt.Component addComp, T... opts) {
+            this(label, addComp, false, opts);
+        }
 
-			if (-1 < index && null != value ) {
-			    list.setToolTipText( value.toString() );
-			}
-			return comp;
-		    }
-		});
-	    }
+        /**
+         * @param label       Label in front of box
+         * @param addComp     Additional component, added directly after the box
+         * @param showToolTip if true, display the full text for each entry as tooltip
+         * @param opts        Selectable elements
+         */
+        public LComboBox(String label, java.awt.Component addComp,
+                         boolean showToolTip, T... opts) {
 
-	    super.add( Box.createHorizontalGlue());
-	    super.add( jl );
-	    super.add( Box.createRigidArea(new Dimension(5,0)));
-	    super.add( box );
-	    super.add( Box.createHorizontalGlue());
-	    if (addComp!=null) {
-		super.add( Box.createRigidArea(new Dimension(5,0)));
-		super.add( addComp );
-	    }
-	}
+            super();
+            super.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+            jl = new JLabel(label);
 
-	/** Returns the currently selected item. Might return
-	 * 'null' if the list is empty. */
-	@SuppressWarnings("unchecked")
-	public T getSelectedItem() {
-	    return (T)box.getSelectedItem();
-	}
+            if ((opts != null) && (opts.length > 0))
+                box = new TComboBox<T>(opts);
+            else
+                box = new TComboBox<T>();
 
-	public int getSelectedIndex() {
-	    return box.getSelectedIndex();
-	}
+            //box.setMaximumSize( box.getPreferredSize() );;
 
-	public void setSelectedIndex(int i) {
-	    box.setSelectedIndex(i);
-	}
-
-	/** Set the currently selected item.
-	 *  If the item is not in the list, the selection is not changed and -1 is returned
-	 *  @param item The item to select
-	 *  @return The index of the item, or -1 if the item is not found 
-	 *  */
-	public int setSelectedItem( T item ) {
-	    
-	    for (int i=0; i<box.getItemCount(); i++) {
-		if ( item.equals( box.getItemAt(i))) {
-		    box.setSelectedIndex(i);
-		    return i;
-		}
-	    }
-
-	    return -1;
-	}
+            box.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (!suppressEvents) {
+                        for (SelectListener<T> i : listener)
+                            i.selected(getSelectedItem(), box.getSelectedIndex());
+                    }
+                }
+            });
 
 
+            // display tooltip with full file name
+            if (showToolTip) {
+                box.setRenderer(new DefaultListCellRenderer() {
+                    @Override
+                    public Component getListCellRendererComponent(JList list, Object value,
+                                                                  int index, boolean isSelected, boolean cellHasFocus) {
 
-	@Override
-	public void setEnabled(boolean onoff) {
-	    box.setEnabled(onoff);
-	}
+                        JComponent comp = (JComponent) super.getListCellRendererComponent(list,
+                                value, index, isSelected, cellHasFocus);
 
-	public void setLabelColor( Color c ) {
-	    jl.setForeground(c);
-	}
-	
-	public void setBackgroundColor( Color c ) {
-	    if (c==null) c = defaultBackground;
-	    super.setBackground(c);
-	}
+                        if (-1 < index && null != value) {
+                            list.setToolTipText(value.toString());
+                        }
+                        return comp;
+                    }
+                });
+            }
+
+            super.add(Box.createHorizontalGlue());
+            super.add(jl);
+            super.add(Box.createRigidArea(new Dimension(5, 0)));
+            super.add(box);
+            super.add(Box.createHorizontalGlue());
+            if (addComp != null) {
+                super.add(Box.createRigidArea(new Dimension(5, 0)));
+                super.add(addComp);
+            }
+        }
+
+        /**
+         * Returns the currently selected item. Might return
+         * 'null' if the list is empty.
+         */
+        @SuppressWarnings("unchecked")
+        public T getSelectedItem() {
+            return box.getSelectedItem();
+        }
+
+        public int getSelectedIndex() {
+            return box.getSelectedIndex();
+        }
+
+        public void setSelectedIndex(int i) {
+            box.setSelectedIndex(i);
+        }
+
+        /**
+         * Set the currently selected item.
+         * If the item is not in the list, the selection is not changed and -1 is returned
+         *
+         * @param item The item to select
+         * @return The index of the item, or -1 if the item is not found
+         */
+        public int setSelectedItem(T item) {
+
+            for (int i = 0; i < box.getItemCount(); i++) {
+                if (item.equals(box.getItemAt(i))) {
+                    box.setSelectedIndex(i);
+                    return i;
+                }
+            }
+
+            return -1;
+        }
 
 
-	/** Add a listener to be notified when the selection changes */
-	public void addSelectListener( SelectListener<T> l ) {
-	    listener.add(l);
-	}
-	/** Remove the listener */
-	public void removeSelectListener( SelectListener<T> l ) {
-	    listener.remove(l);
-	}
-    
-	/** Fill the selector box with new elements.
-	 *  If the currently selected element is contained in the new list,
-	 *  it will be selected again. Otherwise, the first element is selected,
-	 *  and an event is send.*/
-	public void newElements( T ... opts ) {
-	    newElements(-1, opts );
-	}
+        @Override
+        public void setEnabled(boolean onoff) {
+            box.setEnabled(onoff);
+        }
 
-	/** Fill the selector box with new elements, select the i'th element. */
-	public void newElements( int idx, T ... opts ) {
-	    
-	    suppressEvents=true;
+        public void setLabelColor(Color c) {
+            jl.setForeground(c);
+        }
 
-	    T curSel = getSelectedItem(); 
-	    box.removeAllItems();
-	    boolean newSelection=true;
-	    
-	    // only add new elements if opts is not empty
-	    if (( opts != null ) && ( opts.length > 0)) {
-		for ( T a : opts ) {
-		    box.addItem( a );
-		    if (( a.equals( curSel ) )&&(idx<0)) {
-			box.setSelectedItem( a );
-			newSelection=false;
-		    }
-		}
-		if (idx>=0)
-		    box.setSelectedIndex(idx);
-	    } 
-	    // set to empty 
-	    else {
-		    box.setSelectedIndex(-1);
-	    }
+        public void setBackgroundColor(Color c) {
+            if (c == null) c = defaultBackground;
+            super.setBackground(c);
+        }
 
-	    if (newSelection)
-		for ( SelectListener<T> i : listener )
-		    i.selected(  getSelectedItem(), box.getSelectedIndex() );
-	    
-	    suppressEvents=false;
-	}   
+
+        /**
+         * Add a listener to be notified when the selection changes
+         */
+        public void addSelectListener(SelectListener<T> l) {
+            listener.add(l);
+        }
+
+        /**
+         * Remove the listener
+         */
+        public void removeSelectListener(SelectListener<T> l) {
+            listener.remove(l);
+        }
+
+        /**
+         * Fill the selector box with new elements.
+         * If the currently selected element is contained in the new list,
+         * it will be selected again. Otherwise, the first element is selected,
+         * and an event is send.
+         */
+        public void newElements(T... opts) {
+            newElements(-1, opts);
+        }
+
+        /**
+         * Fill the selector box with new elements, select the i'th element.
+         */
+        public void newElements(int idx, T... opts) {
+
+            suppressEvents = true;
+
+            T curSel = getSelectedItem();
+            box.removeAllItems();
+            boolean newSelection = true;
+
+            // only add new elements if opts is not empty
+            if ((opts != null) && (opts.length > 0)) {
+                for (T a : opts) {
+                    box.addItem(a);
+                    if ((a.equals(curSel)) && (idx < 0)) {
+                        box.setSelectedItem(a);
+                        newSelection = false;
+                    }
+                }
+                if (idx >= 0)
+                    box.setSelectedIndex(idx);
+            }
+            // set to empty
+            else {
+                box.setSelectedIndex(-1);
+            }
+
+            if (newSelection)
+                for (SelectListener<T> i : listener)
+                    i.selected(getSelectedItem(), box.getSelectedIndex());
+
+            suppressEvents = false;
+        }
 
     }
-   
-   /** Listener to be called if things get selected */
+
+    /**
+     * Listener to be called if things get selected
+     */
     public interface SelectListener<T> {
-	/* Selected element, its index, calling object. */
-	public void selected(T e, int i); 
-    } 
-    
-   
-   /** Provides a type-save combo-box, like in java7.
-     *  Wrapper around JComboBox, to fix java-1.6 to java-1.7 issue */
+        /* Selected element, its index, calling object. */
+		void selected(T e, int i);
+    }
+
+
+    /**
+     * Provides a type-save combo-box, like in java7.
+     * Wrapper around JComboBox, to fix java-1.6 to java-1.7 issue
+     */
     public static class TComboBox<T> extends JComboBox {
-	public TComboBox(T [] e) {
-	    super(e);
-	}
-	public TComboBox() {
-	    super();
-	}
-    
-	@SuppressWarnings("unchecked")
-	public T getSelectedItem() {
-	    return (T)super.getSelectedItem();
-	}
-    
-    };
+        public TComboBox(T[] e) {
+            super(e);
+        }
 
-    /** Container */
+        public TComboBox() {
+            super();
+        }
+
+        @SuppressWarnings("unchecked")
+        public T getSelectedItem() {
+            return (T) super.getSelectedItem();
+        }
+
+    }
+
+	/**
+     * Container
+     */
     public static class Container<T> {
-	private T val;
-	/** Construct a new container */
-	public Container(T i) {
-	    val=i;
-	}
-	/** set the container to a value */
-	public void set(T i ) {
-	    val = i;
-	}
-	/** get hte container value */
-	public T get() {
-	    return val;
-	}
+        private T val;
+
+        /**
+         * Construct a new container
+         */
+        public Container(T i) {
+            val = i;
+        }
+
+        /**
+         * set the container to a value
+         */
+        public void set(T i) {
+            val = i;
+        }
+
+        /**
+         * get hte container value
+         */
+        public T get() {
+            return val;
+        }
     }
 
 
-    /** Named colors for selector lists */
+    /**
+     * Named colors for selector lists
+     */
     enum NAMED_COLOR {
-	GREY(128,128,128),
-	RED(255,0,0),
-	BLUE(0,0,255),
-	GREEN(0,255,0),
-	WHITE(255,255,255),
-	BLACK(0,0,0),
-	CYAN(0,255,255),
-	MAGENTA(255,0,255),
-	YELLOW(255,255,0);
+        GREY(128, 128, 128),
+        RED(255, 0, 0),
+        BLUE(0, 0, 255),
+        GREEN(0, 255, 0),
+        WHITE(255, 255, 255),
+        BLACK(0, 0, 0),
+        CYAN(0, 255, 255),
+        MAGENTA(255, 0, 255),
+        YELLOW(255, 255, 0);
 
-	int red=0,blue=0,green=0;
+        int red = 0, blue = 0, green = 0;
 
-	NAMED_COLOR(int r, int g, int b) {
-	    red=r; green=g; blue=b;
-	}
+        NAMED_COLOR(int r, int g, int b) {
+            red = r;
+            green = g;
+            blue = b;
+        }
 
 
-	public Color getColor() {
-	    return new Color(red,green,blue);
-	}
+        public Color getColor() {
+            return new Color(red, green, blue);
+        }
 
-	public String toString() {
-	    switch (this) {
-		case GREY: return "grey";
-		case RED: return "red";
-		case BLUE: return "blue";
-		case GREEN:  return "green";
-		case WHITE: return "white";
-		case BLACK: return "black";
-		case CYAN: return "cyan";
-		case MAGENTA: return "magenta";
-		case YELLOW: return "yellow";
-	    }
-	    return null;
-	}
+        public String toString() {
+            switch (this) {
+                case GREY:
+                    return "grey";
+                case RED:
+                    return "red";
+                case BLUE:
+                    return "blue";
+                case GREEN:
+                    return "green";
+                case WHITE:
+                    return "white";
+                case BLACK:
+                    return "black";
+                case CYAN:
+                    return "cyan";
+                case MAGENTA:
+                    return "magenta";
+                case YELLOW:
+                    return "yellow";
+            }
+            return null;
+        }
     }
-    
-
-
 
 
 }

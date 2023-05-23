@@ -18,37 +18,32 @@ along with fairSIM.  If not, see <http://www.gnu.org/licenses/>
 
 package org.fairsim.fiji;
 
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.PlugIn;
+import org.fairsim.linalg.Cplx;
+import org.fairsim.linalg.Vec2d;
 import org.fairsim.sim_algorithm.OtfProvider;
 import org.fairsim.sim_algorithm.SimUtils;
-
 import org.fairsim.utils.Conf;
 import org.fairsim.utils.Tool;
-import org.fairsim.linalg.Vec2d;
-import org.fairsim.linalg.Vec;
-import org.fairsim.linalg.Cplx;
 
-import java.io.File;
-
-import javax.swing.JFileChooser;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
 import java.util.Random;
 
-import ij.plugin.PlugIn;
-import ij.ImageStack;
-import ij.ImagePlus;
-import ij.IJ;
 
-
-
-
-/** Small plugin that folds images with OTFs.
- *  This plugin lets the user select one or more OTF files,
- *  and folds each image in the currently selected stack with
- *  each OTF.
- * */
+/**
+ * Small plugin that folds images with OTFs.
+ * This plugin lets the user select one or more OTF files,
+ * and folds each image in the currently selected stack with
+ * each OTF.
+ */
 public class OtfFolder implements PlugIn {
 
-    ImageStack inputStack ;
+    ImageStack inputStack;
     int width, height;
 
     double pxlNM = 80;
@@ -56,165 +51,159 @@ public class OtfFolder implements PlugIn {
 
     public void run(String arg) {
 
-	ImagePlus curImg = IJ.getImage();
-	if ( curImg == null ) {
-	    return;
-	}
+        ImagePlus curImg = IJ.getImage();
+        if (curImg == null) {
+            return;
+        }
 
-	inputStack = curImg.getStack();
-	if (inputStack == null) {
-	    return;
-	}   
+        inputStack = curImg.getStack();
+        if (inputStack == null) {
+            return;
+        }
 
-	width  = inputStack.getWidth();
-	height = inputStack.getHeight();
+        width = inputStack.getWidth();
+        height = inputStack.getHeight();
 
-	try {
-	    foldWithOtfs();
-	} catch (Exception e) {
-	    Tool.trace("OTF File Error: "+e);
-	    e.printStackTrace( System.err );
-	}
+        try {
+            foldWithOtfs();
+        } catch (Exception e) {
+            Tool.trace("OTF File Error: " + e);
+            e.printStackTrace(System.err);
+        }
 
     }
 
     void foldWithOtfs()
-	throws  Conf.SomeIOException, Conf.EntryNotFoundException {
+            throws Conf.SomeIOException, Conf.EntryNotFoundException {
 
 
-	// let the user select an OTF or a folder scanned for OTFs
-	JFileChooser fs =  new JFileChooser();
-	FileNameExtensionFilter fsFilter 
-	    = new FileNameExtensionFilter("OTF XML files", "xml");
-	
-	fs.setMultiSelectionEnabled(true);
-	fs.setFileFilter(fsFilter);
+        // let the user select an OTF or a folder scanned for OTFs
+        JFileChooser fs = new JFileChooser();
+        FileNameExtensionFilter fsFilter
+                = new FileNameExtensionFilter("OTF XML files", "xml");
 
-	int ret = fs.showOpenDialog(null);
-	if ( ret != JFileChooser.APPROVE_OPTION) {
-	    return;
-	}
+        fs.setMultiSelectionEnabled(true);
+        fs.setFileFilter(fsFilter);
 
-	final File [] otfFileList = fs.getSelectedFiles();
+        int ret = fs.showOpenDialog(null);
+        if (ret != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
 
-	// output the OTFs and images
-	ImageStack otfStack = new ImageStack( width, height );
-	ImageStack outStack = new ImageStack( width, height );
+        final File[] otfFileList = fs.getSelectedFiles();
 
-
-	// loop through the OTFs
-	for ( File otfFile : otfFileList ) {
-
-	    Conf otfCfg = Conf.loadFile( otfFile ); 
-	    OtfProvider otf = OtfProvider.loadFromConfig( otfCfg );
-
-	    otf.setPixelSize( 1./(width*pxlNM/1000.) );
-	   
-	    Vec2d.Cplx otfVector = Vec2d.createCplx(width,height);
-	    ImageVector otfImg = ImageVector.create(width, height);
-	    otf.writeOtfVector( otfVector, 0,0,0);
-	    otfImg.copy(otfVector);
-
-	    otfStack.addSlice( otfFile.toString(), otfImg.img() );
-
-	    // loop through the images
-	    for ( int i=1; i<= inputStack.getSize(); i++) {
-		
-		for (int noise=0; noise<2; noise++) {
-		
-		    
-		    Vec2d.Cplx iVec  = Vec2d.createCplx( width, height);
-		    ImageVector inputImageVector =
-			ImageVector.copy( inputStack.getProcessor(i)) ;
-
-		    iVec.copy( inputImageVector );
-
-		    iVec.fft2d(true);
-		    otf.applyOtf( iVec ,0);
-		    iVec.fft2d(false);
-
-		    
-
-		    // if noise == 1, apply Poisson-like noise
-		    Random rnd = new Random(2342);
-		    if ( noise == 1 ) {
-			for (int k=0; k<iVec.vectorSize(); k++) {
-			    float val = iVec.get(k).abs();
-			    val = val + (float)(rnd.nextGaussian() * Math.sqrt(val));
-			    iVec.set(k, new Cplx.Float(val));
-			}
-		    }
+        // output the OTFs and images
+        ImageStack otfStack = new ImageStack(width, height);
+        ImageStack outStack = new ImageStack(width, height);
 
 
-		    ImageVector outImg = ImageVector.create( width, height );
-		    outImg.copy(   iVec );
-		    SimUtils.clipAndScale( outImg, false, true );
+        // loop through the OTFs
+        for (File otfFile : otfFileList) {
 
-		    // do some Wiener filtering
-		    iVec.fft2d(true);
-		    Vec2d.Cplx wDenom = Vec2d.createCplx( width, height );
-		    for (int j=0; j<width*height; j++) {
-			wDenom.set( j, new Cplx.Double(wParam) );
-		    }
-		    wDenom.addSqr( otfVector );
-		    
-		    ImageVector wImg = ImageVector.create( width, height );
-		    wImg.copy( wDenom );
-		    otfStack.addSlice( "wf", wImg.img() );
-		    
-		    wDenom.reciproc();
-		    
-		    otf.applyOtf( iVec ,0);
-		    iVec.times( wDenom );
-		    Vec2d.Cplx apo = Vec2d.createCplx( width, height );
-		    otf.writeApoVector( apo, .6, 2 );
-		    iVec.times( apo );
-		    iVec.fft2d( false );
+            Conf otfCfg = Conf.loadFile(otfFile);
+            OtfProvider otf = OtfProvider.loadFromConfig(otfCfg);
 
-		    ImageVector outImgFiltered = ImageVector.create( width, height );
-		    outImgFiltered.copy(  iVec  );
-		    SimUtils.clipAndScale( outImgFiltered, false, true );
+            otf.setPixelSize(1. / (width * pxlNM / 1000.));
 
-		    outStack.addSlice( "i: "+i+" orig ("+otfFile.getName()+")", inputImageVector.img());
-		    outStack.addSlice( "i: "+i+" fold ("+otfFile.getName()+")", outImg.img());
-		    outStack.addSlice( "i: "+i+" filt ("+otfFile.getName()+")", outImgFiltered.img());
-		}
-	    }
+            Vec2d.Cplx otfVector = Vec2d.createCplx(width, height);
+            ImageVector otfImg = ImageVector.create(width, height);
+            otf.writeOtfVector(otfVector, 0, 0, 0);
+            otfImg.copy(otfVector);
+
+            otfStack.addSlice(otfFile.toString(), otfImg.img());
+
+            // loop through the images
+            for (int i = 1; i <= inputStack.getSize(); i++) {
+
+                for (int noise = 0; noise < 2; noise++) {
 
 
-	}
+                    Vec2d.Cplx iVec = Vec2d.createCplx(width, height);
+                    ImageVector inputImageVector =
+                            ImageVector.copy(inputStack.getProcessor(i));
+
+                    iVec.copy(inputImageVector);
+
+                    iVec.fft2d(true);
+                    otf.applyOtf(iVec, 0);
+                    iVec.fft2d(false);
 
 
-	// show the results
-	ImagePlus otfDisplay = new ImagePlus("OTFs", otfStack);
-	otfDisplay.show();
-	ImagePlus outDisplay = new ImagePlus("folded images", outStack);
-	outDisplay.show();
+                    // if noise == 1, apply Poisson-like noise
+                    Random rnd = new Random(2342);
+                    if (noise == 1) {
+                        for (int k = 0; k < iVec.vectorSize(); k++) {
+                            float val = iVec.get(k).abs();
+                            val = val + (float) (rnd.nextGaussian() * Math.sqrt(val));
+                            iVec.set(k, new Cplx.Float(val));
+                        }
+                    }
 
 
-	
+                    ImageVector outImg = ImageVector.create(width, height);
+                    outImg.copy(iVec);
+                    SimUtils.clipAndScale(outImg, false, true);
 
-    }
+                    // do some Wiener filtering
+                    iVec.fft2d(true);
+                    Vec2d.Cplx wDenom = Vec2d.createCplx(width, height);
+                    for (int j = 0; j < width * height; j++) {
+                        wDenom.set(j, new Cplx.Double(wParam));
+                    }
+                    wDenom.addSqr(otfVector);
 
-    
+                    ImageVector wImg = ImageVector.create(width, height);
+                    wImg.copy(wDenom);
+                    otfStack.addSlice("wf", wImg.img());
 
-    public static void main( String [] args ) {
+                    wDenom.reciproc();
 
-	ij.ImageJ inst = new ij.ImageJ( ij.ImageJ.EMBEDDED);
-    
-	if (args.length==0) {
-	    IJ.open();
-	} else {
-	    IJ.open(args[0]);
-	}
+                    otf.applyOtf(iVec, 0);
+                    iVec.times(wDenom);
+                    Vec2d.Cplx apo = Vec2d.createCplx(width, height);
+                    otf.writeApoVector(apo, .6, 2);
+                    iVec.times(apo);
+                    iVec.fft2d(false);
+
+                    ImageVector outImgFiltered = ImageVector.create(width, height);
+                    outImgFiltered.copy(iVec);
+                    SimUtils.clipAndScale(outImgFiltered, false, true);
+
+                    outStack.addSlice("i: " + i + " orig (" + otfFile.getName() + ")", inputImageVector.img());
+                    outStack.addSlice("i: " + i + " fold (" + otfFile.getName() + ")", outImg.img());
+                    outStack.addSlice("i: " + i + " filt (" + otfFile.getName() + ")", outImgFiltered.img());
+                }
+            }
 
 
-	OtfFolder us = new OtfFolder();
-	us.run("");
+        }
+
+
+        // show the results
+        ImagePlus otfDisplay = new ImagePlus("OTFs", otfStack);
+        otfDisplay.show();
+        ImagePlus outDisplay = new ImagePlus("folded images", outStack);
+        outDisplay.show();
+
 
     }
 
 
+    public static void main(String[] args) {
+
+        ij.ImageJ inst = new ij.ImageJ(ij.ImageJ.EMBEDDED);
+
+        if (args.length == 0) {
+            IJ.open();
+        } else {
+            IJ.open(args[0]);
+        }
+
+
+        OtfFolder us = new OtfFolder();
+        us.run("");
+
+    }
 
 
 }

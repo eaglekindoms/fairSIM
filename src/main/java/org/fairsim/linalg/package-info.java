@@ -31,6 +31,5 @@ along with fairSIM.  If not, see <http://www.gnu.org/licenses/>
  *
  * <p>
  * Some (re-)implementations of mathematical functions in {@link org.fairsim.linalg.MTool}
- * 
  */
 package org.fairsim.linalg;

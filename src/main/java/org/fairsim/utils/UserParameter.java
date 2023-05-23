@@ -18,18 +18,22 @@ along with fairSIM.  If not, see <http://www.gnu.org/licenses/>
 
 package org.fairsim.utils;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 
 public @interface UserParameter {
-    public String value() default "";
-    public String desc() default "";
-    public int decimals() default 3;
-    public boolean scientific() default false;
-    public boolean mandatory() default false;
+    String value() default "";
+
+    String desc() default "";
+
+    int decimals() default 3;
+
+    boolean scientific() default false;
+
+    boolean mandatory() default false;
 }
